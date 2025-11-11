@@ -364,8 +364,7 @@ struct ScheduleView_Previews: PreviewProvider {
 
 private extension Locale {
     static var is24Hour: Bool {
-        guard let dateFormat = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current) else { return false }
-        return dateFormat.firstIndex(of: "a") != nil
+        return Locale.current.hourCycle == .zeroToTwentyThree
     }
 }
 
