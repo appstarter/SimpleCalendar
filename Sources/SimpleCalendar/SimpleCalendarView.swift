@@ -135,6 +135,9 @@ public struct SimpleCalendarView: View {
 
     /// The date selection style added to the navigation bar
     public enum DateSelectionStyle {
+        /// Do not provide a toolbar item
+        case none
+
         /// The system default date picker
         case datePicker
 
@@ -143,7 +146,7 @@ public struct SimpleCalendarView: View {
     }
 
     public var body: some View {
-        ScrollView {
+        let content = ScrollView {
             ZStack {
                 CalendarPageView(
                     hours: hours,
@@ -165,31 +168,39 @@ public struct SimpleCalendarView: View {
                     selectionAction: selectionAction
                 )
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    ZStack {
-                        switch dateSelectionStyle {
-                        case .datePicker:
-                            DatePicker("", selection: $selectedDate, displayedComponents: [.date])
-                                .labelsHidden()
-                        case .selectedDates(let dates):
-                            Picker(selection: $selectedDate) {
-                                ForEach(dates, id:\.self) { date in
-                                    Text(date, style: .date)
-                                }
-                            } label: {
-                                Text("")
-                            }
-                        }
-                    }
-                }
-            }
         }
         .onChange(of: selectedDate) { _ in
             updateContent()
         }
         .onAppear {
             updateContent()
+        }
+
+        // Conditionally apply the toolbar only when needed
+        switch dateSelectionStyle {
+        case .none:
+            content
+        case .datePicker:
+            content
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        DatePicker("", selection: $selectedDate, displayedComponents: [.date])
+                            .labelsHidden()
+                    }
+                }
+        case .selectedDates(let dates):
+            content
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Picker(selection: $selectedDate) {
+                            ForEach(dates, id:\.self) { date in
+                                Text(date, style: .date)
+                            }
+                        } label: {
+                            Text("")
+                        }
+                    }
+                }
         }
     }
 
